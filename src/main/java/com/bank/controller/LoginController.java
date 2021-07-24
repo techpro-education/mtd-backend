@@ -8,46 +8,74 @@ import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-//import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.bank.dao.UserDAO;
 import com.bank.model.Role;
 import com.bank.model.User;
 import com.bank.model.UserRole;
 import com.bank.repository.RoleRepo;
 import com.bank.repository.UserRepo;
+import com.bank.request.LoginForm;
 import com.bank.request.SignUpForm;
+import com.bank.response.LoginResponse;
 import com.bank.response.Response;
 import com.bank.service.AccountService;
+import com.bank.service.UserService;
+import com.bank.util.JwtUtil;
 
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 @RestController
 @RequestMapping("/auth")
 public class LoginController {
-	
+
+	@Autowired
+	AuthenticationManager authenticationManager;
+
 	@Autowired
 	UserRepo userRepo;
 
 	@Autowired
 	RoleRepo roleRepo;
-
-	/*
-	 * @Autowired PasswordEncoder encoder;
-	 */
+	
+	@Autowired
+	UserService userService;
 	
 	@Autowired
 	AccountService accountService;
-	
-	@GetMapping("/welcome")
-	public ResponseEntity<String> welcome(){
-		return new ResponseEntity<>("Hello", HttpStatus.OK);
+
+	@Autowired
+	PasswordEncoder encoder;
+
+	@Autowired
+	private JwtUtil jwtUtil;
+
+	@PostMapping("/login")
+	public ResponseEntity<LoginResponse> authenticateUser(@Valid @RequestBody LoginForm loginRequest) {
+
+		Authentication authentication = authenticationManager.authenticate(
+				new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
+
+		SecurityContextHolder.getContext().setAuthentication(authentication);
+		
+		User user = (User) authentication.getPrincipal();
+
+		String jwt = jwtUtil.generateToken(authentication);
+		
+		UserDAO userDAO = userService.getUserDAO(user);
+		
+		return ResponseEntity.ok(new LoginResponse(userDAO,jwt));
 	}
-	
+
 	@PostMapping("/register")
 	public ResponseEntity<Response> registerUser(@Valid @RequestBody SignUpForm signUpRequest) {
 		Response response = new Response();
@@ -64,14 +92,9 @@ public class LoginController {
 		}
 
 		// Creating user's account
-		/*
 		User user = new User(signUpRequest.getFirstName(), signUpRequest.getLastName(), signUpRequest.getUsername(),
 				signUpRequest.getEmail(), encoder.encode(signUpRequest.getPassword()));
-				*/
 
-		User user = new User(signUpRequest.getFirstName(), signUpRequest.getLastName(), signUpRequest.getUsername(),
-				signUpRequest.getEmail(), signUpRequest.getPassword());
-		
 		Set<UserRole> userRoles = new HashSet<>();
 		Set<String> strRoles = signUpRequest.getRole();
 		strRoles.forEach(roleName -> {
@@ -85,5 +108,4 @@ public class LoginController {
 		response.setSuccess(true);
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
-
 }
