@@ -14,6 +14,11 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import com.bank.jwt.filter.JwtRequestFilter;
 import com.bank.service.impl.UserDetailsServiceImpl;
 
+/**
+ * 
+ * Security Configuration
+ *
+ */
 @EnableWebSecurity
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
