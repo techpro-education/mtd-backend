@@ -92,7 +92,7 @@ public class LoginController {
 		}
 
 		// Creating user's account
-		User user = new User(signUpRequest.getFirstName(), signUpRequest.getLastName(), signUpRequest.getUsername(),
+		User user = new User(signUpRequest.getFirstName(), signUpRequest.getLastName(), signUpRequest.getUsername(),signUpRequest.getDob(),
 				signUpRequest.getEmail(), encoder.encode(signUpRequest.getPassword()));
 
 		Set<UserRole> userRoles = new HashSet<>();

@@ -40,6 +40,7 @@ public class User implements UserDetails {
 	private String password;
 	private String firstName;
 	private String lastName;
+	private String dob;
 	@Column(name = "email", nullable = false, unique = true)
 	private String email;
 	private String phone;
@@ -54,11 +55,12 @@ public class User implements UserDetails {
 	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	private List<Recipient> recipients;
 
-	public User(String firstName, String lastName, String username,
+	public User(String firstName, String lastName, String username,String dob,
 			String email, String password) {
 		this.firstName = firstName;
 		this.lastName = lastName;
 		this.username = username;
+		this.dob = dob;
 		this.email = email;
 		this.password = password;
 	}
