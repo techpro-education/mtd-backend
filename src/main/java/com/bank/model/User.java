@@ -28,48 +28,60 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString
-@Entity
 @NoArgsConstructor
+@Entity
 public class User implements UserDetails {
 	private static final long serialVersionUID = 1L;
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "userId", nullable = false, updatable = false)
 	private Long userId;
+
+	@Column(name = "username", nullable = false, unique = true)
 	private String username;
+
+	@Column(name = "password", nullable = false)
 	private String password;
+
 	private String firstName;
+
 	private String lastName;
-	private String dob;
+
 	@Column(name = "email", nullable = false, unique = true)
 	private String email;
+
+	private String dob;
+
 	private String phone;
+
 	private boolean enabled = true;
+
 	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
 	@JsonIgnore
 	private Set<UserRole> userRoles = new HashSet<>();
-
+	
 	@OneToOne
 	private Account account;
-
-	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	
+	@OneToMany(mappedBy = "user" , cascade = CascadeType.ALL , fetch = FetchType.LAZY)
+	@JsonIgnore
 	private List<Recipient> recipients;
 
-	public User(String firstName, String lastName, String username,String dob,
-			String email, String password) {
+	public User(String firstName, String lastName, String username, String email, String dob, String password) {
 		this.firstName = firstName;
 		this.lastName = lastName;
 		this.username = username;
-		this.dob = dob;
 		this.email = email;
+		this.dob = dob;
 		this.password = password;
 	}
 
+	// Handle the roles
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
 		Set<GrantedAuthority> authorities = new HashSet<>();
-		userRoles.forEach(
-				ur -> authorities.add(new Authority(ur.getRole().getName())));
+		userRoles.forEach(ur -> authorities.add(new Authority(ur.getRole().getName())));
 		return authorities;
 	}
 
@@ -100,7 +112,7 @@ public class User implements UserDetails {
 
 	@Override
 	public boolean isEnabled() {
-		return enabled;
+		return true;
 	}
 
 }

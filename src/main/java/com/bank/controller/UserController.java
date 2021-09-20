@@ -1,7 +1,5 @@
 package com.bank.controller;
 
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,7 +10,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.bank.dao.UserDAO;
 import com.bank.response.UserResponse;
 import com.bank.service.UserService;
 
@@ -20,20 +17,19 @@ import com.bank.service.UserService;
 @RestController
 @RequestMapping("/user")
 public class UserController {
-
+	
 	@Autowired
 	UserService userService;
-
+	
 	@GetMapping("/all")
-	public ResponseEntity<UserResponse> getAllUsers() {
+	public ResponseEntity<UserResponse> getAllUsers(){
 		UserResponse response = new UserResponse();
-		List<UserDAO> users = userService.getAllUsers();
-		response.setUsers(users);
-		return new ResponseEntity<>(response, HttpStatus.OK);
+		response.setUsers(userService.getAllUsers());
+		return new ResponseEntity<>(response,HttpStatus.OK);
 	}
-
+	
 	@DeleteMapping("/delete/{id}")
-	public ResponseEntity<HttpStatus> deleteUser(@PathVariable(value = "id") String id) {
+	public ResponseEntity<HttpStatus> deleteUser(@PathVariable(value = "id") String id){
 		userService.deleteUser(Long.parseLong(id));
 		return new ResponseEntity<>(HttpStatus.OK);
 	}

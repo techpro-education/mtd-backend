@@ -12,8 +12,8 @@ import javax.persistence.ManyToOne;
 
 import lombok.Data;
 
-@Entity
 @Data
+@Entity
 public class Transaction {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,17 +23,16 @@ public class Transaction {
 	private String type;
 	private double amount;
 	private BigDecimal availableBalance;
-	private Boolean isTransfer;
+	private boolean isTransfer;
+	
 	@ManyToOne
-	@JoinColumn(name = "account_id")
+	@JoinColumn(name="account_id")
 	private Account account;
-
-	public Transaction() {
-
-	}
+	
+	public Transaction() {}
 
 	public Transaction(Date date, String description, String type, double amount, BigDecimal availableBalance,
-			Boolean isTransfer , Account account) {
+			boolean isTransfer, Account account) {
 		super();
 		this.date = date;
 		this.description = description;
@@ -42,6 +41,7 @@ public class Transaction {
 		this.availableBalance = availableBalance;
 		this.isTransfer = isTransfer;
 		this.account = account;
-	}
-
+	};
+	
+	
 }

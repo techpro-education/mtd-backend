@@ -8,13 +8,14 @@ import com.bank.repository.TransactionRepo;
 import com.bank.service.TransactionService;
 
 @Service
-public class TransactionServiceImpl  implements TransactionService {
-
+public class TransactionServiceImpl implements TransactionService {
+	
 	@Autowired
 	TransactionRepo transactionRepo;
-	
+
 	@Override
 	public void saveTransaction(Transaction transaction) {
-		transactionRepo.save(transaction);		
+		transactionRepo.save(transaction);
 	}
+
 }

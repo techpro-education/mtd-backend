@@ -9,6 +9,7 @@ import javax.persistence.ManyToOne;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data
@@ -23,22 +24,20 @@ public class Recipient {
 	private String bankName;
 	private String bankNumber;
 
+	@ManyToOne
+	@JoinColumn(name = "user_id")
+	@JsonIgnore
+	private User user;
+
 	public Recipient() {
+	};
 
-	}
-
-	public Recipient(String name, String email, Integer phone, String bankName,
-			String iBanNumber) {
+	public Recipient(String name, String email, Integer phone, String bankName, String bankNumber) {
 		super();
 		this.name = name;
 		this.email = email;
 		this.phone = phone;
 		this.bankName = bankName;
-		this.bankNumber = iBanNumber;
+		this.bankNumber = bankNumber;
 	}
-
-	@ManyToOne
-	@JoinColumn(name = "user_id")
-	@JsonIgnore
-	private User user;
 }

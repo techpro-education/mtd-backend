@@ -9,5 +9,5 @@ import lombok.Data;
 @AllArgsConstructor
 public class LoginResponse {
 	private UserDAO user;
-    private String jwt; 
+	private String jwt;
 }

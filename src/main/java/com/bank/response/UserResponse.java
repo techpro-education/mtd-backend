@@ -8,5 +8,7 @@ import lombok.Data;
 
 @Data
 public class UserResponse {
+	
 	List<UserDAO> users;
+
 }

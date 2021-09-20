@@ -9,13 +9,12 @@ import com.bank.request.TransferRequest;
 public interface AccountService {
 
 	Account createAccount();
-
-	void deposit(TransactionRequest request, User user);
+	
+	void deposit(TransactionRequest request , User user);
 
 	void withdraw(TransactionRequest request, User user);
-
+	
 	void saveRecipient(Recipient recipient);
-
-	void transfer(TransferRequest request, User user);
-
+	
+	void transfer(TransferRequest request,User user);
 }

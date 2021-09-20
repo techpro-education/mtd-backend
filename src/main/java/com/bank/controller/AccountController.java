@@ -34,7 +34,7 @@ public class AccountController {
 	UserService userService;
 
 	@PostMapping("/deposit")
-	private ResponseEntity<TransactionResponse> deposit(@Valid @RequestBody TransactionRequest request) {
+	public ResponseEntity<TransactionResponse> deposit(@Valid @RequestBody TransactionRequest request) {
 		TransactionResponse response = new TransactionResponse();
 		User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		accountService.deposit(request, user);
@@ -46,7 +46,7 @@ public class AccountController {
 	}
 
 	@PostMapping("/withdraw")
-	private ResponseEntity<TransactionResponse> withdraw(@Valid @RequestBody TransactionRequest request) {
+	public ResponseEntity<TransactionResponse> withdraw(@Valid @RequestBody TransactionRequest request) {
 		TransactionResponse response = new TransactionResponse();
 		User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		// Account Balance Check
@@ -63,43 +63,39 @@ public class AccountController {
 		}
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
-	
-	@PostMapping("/addRecipient")
-	private ResponseEntity<TransactionResponse> 
-	addRecipient(@Valid @RequestBody RecipientForm recipientForm){
-		TransactionResponse response = new TransactionResponse();
-		User user =  (User) SecurityContextHolder
-				.getContext().getAuthentication().getPrincipal();
-		Recipient recipient = new Recipient(recipientForm.getName(),recipientForm.getEmail(),
-				recipientForm.getPhone(),recipientForm.getBankName(),
-				recipientForm.getBankNumber());
-		recipient.setUser(user);
-		accountService.saveRecipient(recipient);
-		response.setMessage("Recipient has been added successfully");
-		response.setSuccess(true);
-		UserDAO userDAO = userService.getUserDAOByName(user.getUsername());
-		response.setUser(userDAO);		
-		return new ResponseEntity<>(response, HttpStatus.OK);
-	}
-	
+
 	@PostMapping("/transfer")
-	private ResponseEntity<TransactionResponse> transfer(@Valid 
-			@RequestBody TransferRequest transferRequest){
+	public ResponseEntity<TransactionResponse> transfer(@Valid @RequestBody TransferRequest request) {
 		TransactionResponse response = new TransactionResponse();
 		User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		// Account Balance Check
 		if (user != null && user.getAccount() != null
-				&& user.getAccount().getAccountBalance().intValue() >= transferRequest.getAmount()) {
-			accountService.transfer(transferRequest, user);
-			response.setMessage("Transfer to "+transferRequest.getRecipientName() +"has been"
-					+ " completed successfully");
+				&& user.getAccount().getAccountBalance().intValue() >= request.getAmount()) {
+			accountService.transfer(request, user);
+			response.setMessage("Amount $" + request.getAmount() + " has been transferred to  "
+					+ request.getRecipientName() + " successfully");
 			response.setSuccess(true);
 			UserDAO userDAO = userService.getUserDAOByName(user.getUsername());
 			response.setUser(userDAO);
 		} else {
-			response.setMessage("Sorry! you don't have sufficient amount to withdraw");
+			response.setMessage("Sorry! you don't have sufficient amount to transfer");
 			response.setSuccess(false);
 		}
+		return new ResponseEntity<>(response, HttpStatus.OK);
+	}
+
+	@PostMapping("/addRecipient")
+	public ResponseEntity<TransactionResponse> addRecipient(@Valid @RequestBody RecipientForm recipientForm) {
+		TransactionResponse response = new TransactionResponse();
+		User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		Recipient recipient = new Recipient(recipientForm.getName(), recipientForm.getEmail(), recipientForm.getPhone(),
+				recipientForm.getBankName(), recipientForm.getBankNumber());
+		recipient.setUser(user);
+		accountService.saveRecipient(recipient);
+		response.setSuccess(true);
+		response.setMessage("Recipient added Successfully");
+		UserDAO userDAO = userService.getUserDAOByName(user.getUsername());
+		response.setUser(userDAO);
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 }

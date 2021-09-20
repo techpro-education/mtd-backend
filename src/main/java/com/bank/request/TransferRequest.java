@@ -9,7 +9,7 @@ public class TransferRequest {
 
 	@NotBlank
 	private String recipientName;
-
+	
 	@NotBlank
 	private Double amount;
 }

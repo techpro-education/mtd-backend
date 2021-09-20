@@ -19,5 +19,5 @@ public class UserDAO {
 	private List<TransactionDAO> transactions;
 	private List<RecipientDAO> recipients;
 	private Long totalUsers;
-	private Double totalBalance;
+	private double totalBalance;
 }

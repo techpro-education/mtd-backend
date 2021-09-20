@@ -36,76 +36,87 @@ import com.bank.util.JwtUtil;
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 @RestController
 @RequestMapping("/auth")
-public class LoginController {
 
-	@Autowired
-	AuthenticationManager authenticationManager;
+public class LoginController {
 
 	@Autowired
 	UserRepo userRepo;
 
 	@Autowired
 	RoleRepo roleRepo;
-	
+
+	@Autowired
+	PasswordEncoder encoder;
+
+	@Autowired
+	AuthenticationManager authenticationManager;
+
+	@Autowired
+	JwtUtil jwtUtil;
+
 	@Autowired
 	UserService userService;
 	
 	@Autowired
 	AccountService accountService;
 
-	@Autowired
-	PasswordEncoder encoder;
-
-	@Autowired
-	private JwtUtil jwtUtil;
-
-	@PostMapping("/login")
-	public ResponseEntity<LoginResponse> authenticateUser(@Valid @RequestBody LoginForm loginRequest) {
-
-		Authentication authentication = authenticationManager.authenticate(
-				new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
-
-		SecurityContextHolder.getContext().setAuthentication(authentication);
-		
-		User user = (User) authentication.getPrincipal();
-
-		String jwt = jwtUtil.generateToken(authentication);
-		
-		UserDAO userDAO = userService.getUserDAO(user);
-		
-		return ResponseEntity.ok(new LoginResponse(userDAO,jwt));
-	}
-
 	@PostMapping("/register")
 	public ResponseEntity<Response> registerUser(@Valid @RequestBody SignUpForm signUpRequest) {
 		Response response = new Response();
+
+		// Check User Name Already Exists
 		if (userRepo.existsByUsername(signUpRequest.getUsername())) {
-			response.setMessage("Username is already taken!");
 			response.setSuccess(false);
+			response.setMessage("User Name already exists !");
 			return new ResponseEntity<>(response, HttpStatus.OK);
 		}
 
+		// Check Email Already Exists
 		if (userRepo.existsByEmail(signUpRequest.getEmail())) {
-			response.setMessage("Email is already in use");
 			response.setSuccess(false);
+			response.setMessage("Email already exists !");
 			return new ResponseEntity<>(response, HttpStatus.OK);
 		}
 
-		// Creating user's account
-		User user = new User(signUpRequest.getFirstName(), signUpRequest.getLastName(), signUpRequest.getUsername(),signUpRequest.getDob(),
-				signUpRequest.getEmail(), encoder.encode(signUpRequest.getPassword()));
-
+		// Creating User's Account
+		User user = new User(signUpRequest.getFirstName(), signUpRequest.getLastName(), signUpRequest.getUsername(),
+				signUpRequest.getEmail(), signUpRequest.getDob(), encoder.encode(signUpRequest.getPassword()));
 		Set<UserRole> userRoles = new HashSet<>();
-		Set<String> strRoles = signUpRequest.getRole();
-		strRoles.forEach(roleName -> {
-			Role role = roleRepo.findByName(roleName).orElseThrow(() -> new RuntimeException("User Role not found."));
+		signUpRequest.getRole().forEach(roleName -> {
+			Role role = roleRepo.findByName(roleName).orElseThrow(() -> new RuntimeException("Role not found"));
 			userRoles.add(new UserRole(user, role));
 		});
 		user.setUserRoles(userRoles);
+
 		user.setAccount(accountService.createAccount());
+		// Save method will save this user object in the database
 		userRepo.save(user);
-		response.setMessage("User Registered Successfully!");
 		response.setSuccess(true);
+		response.setMessage("User has been created successfully");
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
+
+	@PostMapping("/login")
+	public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginForm loginForm) {
+		// Create Authentication Object from username & password
+		Authentication authentication = authenticationManager.authenticate(
+				new UsernamePasswordAuthenticationToken(loginForm.getUsername(), loginForm.getPassword()));
+
+		// Put that authenticate object in context holder
+		SecurityContextHolder.getContext().setAuthentication(authentication);
+
+		// Create JWT Token
+		String jwtToken = jwtUtil.generateToken(authentication);
+
+		User user = (User) authentication.getPrincipal();
+
+		// Convert user to user dao object
+		UserDAO userDAO = userService.getUserDAO(user);
+
+		LoginResponse response = new LoginResponse(userDAO, jwtToken);
+
+		return new ResponseEntity<>(response, HttpStatus.OK);
+
+	}
+
 }

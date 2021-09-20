@@ -18,18 +18,17 @@ public class SignUpForm {
     @Size(min = 3, max = 50)
     private String lastName;
 
-
     @NotBlank
     @Size(min = 3, max = 50)
     private String username;
 
-    @NotBlank 
-    private String dob;  
-    
     @NotBlank
     @Size(max = 60)
     @Email(message="Please provide valid Email Address")
     private String email;
+    
+    @NotBlank
+    private String dob;
     
     @NotBlank
     private Set<String> role;
