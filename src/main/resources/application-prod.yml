@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:mysql://<<Server_IP>>:3306/mtdbank?createDatabaseIfNotExist=true
+    url: jdbc:mysql://mtdbank-db:3306/mtdbank?createDatabaseIfNotExist=true
     username: root
     password: admin
     testWhileIdle: true
